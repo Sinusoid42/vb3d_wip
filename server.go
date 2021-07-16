@@ -32,14 +32,13 @@ func main() {
 	MuxRouter.PathPrefix("/svg/").Handler(http.StripPrefix("/svg", http.FileServer(http.Dir(utils.GetLocalEnv()+utils.PathToSvg))))
 
 	http.Handle("/", MuxRouter)
-	
+
 	server := http.Server{
 		Addr: ":8080",
 	}
 	fmt.Println("Server has been booted")
 	fmt.Println("Listening on Port: ':8080'")
 	//server.ListenAndServe()
-
 
 	err := server.ListenAndServe()
 	//("https-server.crt", "https-server.key")
