@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset ="UTF-8">
+    <title> Document</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script defer src ="/scripts/face-api.min.js"></script>
+    <script defer src= "/scripts/stream_api.js"></script>
+    <script defer src ="/scripts/video_api.js"></script>
+    <script defer src ="/scripts/recorder_api.js"></script>
+    <script defer src ="/scripts/encoder_api.js"  ></script>
+    <script defer src ="/scripts/rooms.js"  ></script>
+
+    <link rel="stylesheet" href="/css/rooms.css">
+
+</head>
+<body>
+
+
+
+    <div class="container-fluid fixed-top">
+
+        <div class="row">
+            <div class="col-10"><!-- This are holds the canvasses to rerender the recieved images -->
+                <div class="row justify-content-md-center">
+                    <div id="canvas_area_debug">{{ if not .auth}}
+                        <div id ="selection_menu" style="border: solid;border: #fd7e14" class="row mt-5 justify-content-md-center">
+                            <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary" onclick="window.open('/', '_self')">Create Account
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary" onclick="joinAnyway()">Join Anyway
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-center">You have no User-Account</p>
+                                </div>
+                            </div>
+                            </div>
+                            <script defer>
+                                function joinAnyway(){
+
+                                    var request = new XMLHttpRequest()
+                                    request.open("POST", "/rooms/" + {{.room_id}} + "?join="+true, true)
+                                    request.send()
+                                    request.onreadystatechange = () => {
+                                        if (request.readyState == XMLHttpRequest.DONE) {
+
+                                            console.log("the server has answered")
+                                            var json = JSON.parse(request.response)
+                                            room_id = json["room_id"]
+                                            user_id = json["user_id"]
+                                            server_url = json["server_url"]
+                                            room_exists = json["exist"]
+                                            ws_proto = json["server_websocket_protocol"];
+                                            if (!room_exists){
+                                                window.open("http://localhost:8080", "_self");
+                                                return;
+                                            }
+                                            console.log(room_id)
+                                            console.log(user_id)
+
+                                            document.getElementById("selection_menu").remove()
+                                            var c = document.createElement("div")
+                                            c.classList.add("col-md-4");
+                                            c.innerHTML = `<canvas width='128px' height='128px' id='recieve_canvas'></canvas>`;
+                                            document.getElementById("canvas_area_debug").appendChild(c);
+                                            rooms.startRoomSession(server_url, ws_proto, room_id, user_id);
+                                        }
+                                    }
+                                }
+                            </script>
+                        </div>
+                        {{else}}
+
+                            <h1>SHOW THREE JS CONTEXT HERE</h1>
+                            <div class="col-md-4">
+                                <canvas width="128px" height="128px" id="recieve_canvas"></canvas>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-2 vb3d_room_menu mt-2 pt-2 mb-2 pb-4 border-right" id="vb3d_menu">
+                <div class="row">
+                    <!-- >Header Row for the Menu bar-->
+                    <!-- >Clientside JS Functionalty that engages with the streaming protocol and the chat room-->
+                    <!-- >For further detail, see the-->
+                    <div class="col-12">
+                        <p class="text-center" style="font-family: 'Lucida Grande', 'sans-serif'">
+
+                           <u> Video Based 3D Avatars</u>
+
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 " id="video_wrapper">
+                        <video class="mt-0" autoplay muted id="video_webcam_element" width ="200px" height ="150px"></video>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-10 d-flex justify-content-center" id="video_face_detection_wrapper">
+                        <canvas id ="face_canvas" class="col-12" width="128" height="128"></canvas>
+                    </div>
+                    <div>
+                        <audio class="col-1" id ="audio_stream_element_user_0"></audio>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-4 pl-1 pr-0">
+                        <p class="col-12 pl-0 pr-0">Room ID:</p>
+                    </div>
+                    <div class="col-8 " id="room_id_wrapper">
+                        <p id="room_id" style="font-size: small">{{.room_id}}</p>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <div class="col-4 pl-1 pr-0">
+                        <p class="col-12 pl-0 pr-0">User ID:</p>
+                    </div>
+                    <div class="col-8 " id="user_id_wrapper">
+                        <p id="user_id" style="font-size: small">{{.user_id}}</p>
+                    </div>
+                </div>
+
+                <div class ="row justify-content-md-center">
+                    <div class="col-4">
+                        <button class="btn btn-secondary" id="camera_button">
+                            <img width="20" src="/svg/camera-video-off-fill.svg" id="camera_icon">
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-secondary" id="camera_button">
+                            <img width="20" src="/svg/mic-mute-fill.svg" id="camera_icon">
+                        </button>
+                    </div>
+
+                </div>
+                <div class ="row justify-content-md-center">
+                    <div class="col-4">
+                        <button class="btn btn-secondary" id="kill_switch" onclick=" stream_api.kill(); if (stream_api.status.active){var e = document.getElementById('kill_switch');e.classList.remove('btn-seconday');e.classList.add('btn-danger')}else{var e = document.getElementById('kill_switch');e.classList.add('btn-seconday');e.classList.remove('btn-danger')}">
+                        </button>
+                    </div>
+                    <audio  class ="col-4" controls="controls" autobuffer="autobuffer" autoplay="autoplay" id ="audio_playback_source">
+                        <source src="" />
+                    </audio>
+                </div>
+                    <div class="chat-wrapper">
+                          <ul id="events"></ul>
+                          <form id="chat-form">
+                                <input id="chat" autocomplete="off" title="chat" />
+                                <button id="say">Say</button>
+                          </form>
+                    </div>
+                    <div>
+
+
+                        <audio id ="user_audio_0" src="data:audio/webm;codecs=opus;base64,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" type="audio/webm" onchange="this.play();" controls autoplay>
+                        </audio>
+
+
+
+                    </div>
+            </div>
+        </div>
+    </div>
+
+            <script defer>
+                window.onload = () => {
+                    var server_url = {{.server_url}};
+                    var room_id =  {{ .room_id}};
+                    var user_id =  {{ .user_id}};
+                    var ws_proto = {{ .server_websocket_protocol}};
+
+                    console.log(room_id)
+                    console.log(user_id)
+
+                    var e = {{.auth}}
+
+
+                    if (e) {
+                        //Establish Connection now
+                        rooms.startRoomSession(server_url, ws_proto , room_id, user_id);
+
+                    }
+                }
+            </script>
+</body>
+
+</html>

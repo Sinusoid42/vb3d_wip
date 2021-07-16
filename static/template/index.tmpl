@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset ="UTF-8">
+        <title> Document</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+    </head>
+    <body>
+
+        <div class="container-fluid">
+
+            <div class="row justify-content-md-center">
+                <div class="col-lg-auto  pt-5">
+                    <button class="btn btn-info" onclick="window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/login', '_self')" {{if .auth}}disabled{{end}}>
+                        Login
+                    </button>
+                </div>
+                <div class="col-lg-auto pt-5">
+                    <button  class="btn btn-info" onclick="window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/register', '_self')" {{if .auth}}disabled{{end}}>
+                        Register
+                    </button>
+                </div>
+                <div class="col-lg-auto pt-5">
+                    <button  class="btn btn-info" onclick="window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/logout', '_self')" {{if not .auth}}disabled{{end}}>
+                        Logout
+                    </button>
+                </div>
+
+            </div>
+            <div class="row justify-content-md-center pt-5" id ="join_btn">
+                <div class="col-2">
+                    <button class="btn btn-primary btn-dark col-12" onclick="openNewRoom()" {{if not .auth}}disabled{{end}}> Create Room</button>
+                </div>
+                <div class="col-2" >
+                    <button class="btn btn-primary btn-dark col-12" onclick="joinRoom()" > Join Room</button>
+                </div>
+            </div>
+        </div>
+    </body>
+        <script>
+            console.log(window.document.cookie);
+            function openNewRoom(){
+                if ({{ .auth }}) {  //Ich bin sowas von dämlich, NOTIZ: Golang variablen für templates IMMER MixedCaps => Print (public) => print (private) ausser in  maps
+                    window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/rooms', '_self');
+                }
+            }
+            function joinSelectedRoom(room_id) {
+                console.log(room_id)
+                if (room_id.length == 16) {
+
+                    document.getElementById("join_selected_btn").classList.remove("btn-info")
+                    document.getElementById("join_selected_btn").classList.add("btn-warning")
+
+                    //TODO
+                    var request = new XMLHttpRequest();
+                    request.open("POST", "/rooms/" + room_id, true);
+                    request.send();
+                    request.onreadystatechange = () => {
+                        if (request.readyState == XMLHttpRequest.DONE) {
+                            var json = JSON.parse(request.response);
+
+                            console.log(json)
+                            if (json["exist"]) {
+                                document.getElementById("join_selected_btn").classList.remove("btn-info")
+                                document.getElementById("join_selected_btn").classList.remove("btn-warning")
+                                document.getElementById("join_selected_btn").classList.add("btn-success")
+
+                                console.log("JOIN")
+
+                                setTimeout(() => {window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/rooms/' + room_id + '?join=true', "_self");},500);
+
+                            } else {
+
+                                document.getElementById("join_selected_btn").classList.remove("btn-info")
+                                document.getElementById("join_selected_btn").classList.add("btn-danger")
+
+                                setTimeout(() => {
+                                    document.getElementById("join_selected_btn").classList.add("btn-info")
+                                    document.getElementById("join_selected_btn").classList.remove("btn-danger")
+                                }, 1000)
+                            }
+                        }
+                    }
+                }
+                else{
+
+                    document.getElementById("join_selected_btn").classList.remove("btn-info")
+                    document.getElementById("join_selected_btn").classList.add("btn-danger")
+
+                    setTimeout(() => {
+                        document.getElementById("join_selected_btn").classList.add("btn-info")
+                        document.getElementById("join_selected_btn").classList.remove("btn-danger")
+                    }, 1000)
+                }
+            }
+
+            var join_room_state = 0;
+            function joinRoom(){
+
+                if (join_room_state == 0){
+                    join_room_state = 1;
+                    var e = document.createElement("div");
+                    e.classList.add("row", "mt-5", "justify-content-md-center");
+                    e.innerHTML = "<input class='col-2 align-self-lg-center' type='text' id='join_id'><button class='btn btn-info ml-2' id='join_selected_btn' onclick='joinSelectedRoom(document.getElementById(`join_id`).value)'>Join</button>";
+
+                    var k = document.getElementById("join_btn");
+                    e.type = "text";
+
+                    k.parentElement.append(e);
+                }
+            }
+
+        </script>
+</html>

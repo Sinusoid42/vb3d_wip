@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<head>
+    <script defer src ="/scripts/face-api.min.js"></script>
+    <script defer src= "/scripts/stream_api.js"></script>
+    <script defer src ="/scripts/video_api.js"></script>
+    <script defer src ="/scripts/stream.js"></script>
+
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+
+
+
+
+    <title>Room Session</title>
+</head>
+
+
+
+
+<body>
+
+
+    <div class="container-fluid">
+        <div class="row pt-2">
+
+            <div class="col-md-4 ">
+
+
+                <button onclick="rooms('12345678909')" class="btn btn-secondary" >
+                    Create Room
+                </button>
+
+            </div>
+
+            <div class="col-md-4">
+                <p class="col-6">
+                    Current Room ID:
+                </p>`
+                <p class="col-6" id="display_room_id">
+                    NULL
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 justify-content-md-center">
+                <div>
+                    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+                    <h1>Ausgabebild:</h1>
+                    <canvas id="face_canvas" width ="128px" height ="128px"></canvas>
+                </div>
+                <div>
+                    <video id = "video" width ="720" height ="560" autoplay muted></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        var request = new XMLHttpRequest();
+
+        request.open("http://139.6.101.20:8080/arduino/173927402hd83n29d?info=['cb', 'cu', 'abc']")
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+</body>
+</html>

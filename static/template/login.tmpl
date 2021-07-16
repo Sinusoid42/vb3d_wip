@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset ="UTF-8">
+        <title> Document</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <script src="/scripts/encode_rot13.js"></script>
+    </head>
+    <body>
+        
+        <div class="container" id="login_form_container">
+            <div class="col-sm-1 pt-5">
+                <button class ="btn btn-dark" onclick="window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/', '_self')">Back</button>
+
+
+            </div>
+            <div class="row justify-content-lg-center">
+
+                <div class="col-md-auto pt-5" >
+                    <div class="col-12" id ="inner_form_col">
+                        <div class="row justify-content-lg-center">
+                            <p>LOGIN</p>
+                        </div>
+                        <div class="row">
+                            <form>
+                               <div class="row pt-2">
+                                    <input class="col-md-auto" type="text" id="user_name_input" autocomplete="current-password" placeholder="Username" onkeyup="checkInput()">
+                                </div>
+                                <div class="row pt-2">
+                                    <input class="col-md-auto" type="password" autocomplete="current-password" id="user_password_input" onkeyup="checkInput()" placeholder="Password">
+                                </div>
+                            </form>
+                        </div>
+                            <div class="row justify-content-lg-center pt-3">
+                                <button class="btn btn-dark" id="login_btn"
+                                onclick="submitForm()">Login</button>
+                            </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <div class="row justify-content-md-center">
+                <div class="col-md-auto">
+                    <p id="register_form_error_message" class="pt-2">
+                        -
+                    </p>
+                </div>
+
+
+            </div>
+        </div>
+    </body>
+    <script>
+
+        let form_url = "/login?"
+
+
+        function checkInput(){
+            var p = document.getElementById("user_password_input").value;
+            var url = form_url + "user_name=" + document.getElementById("user_name_input").value+"&user_password="+encodeRot13(p)
+
+            console.log("checking login")
+            var request = new XMLHttpRequest()
+            request.open("POST", url, true);
+            request.send();
+            request.onreadystatechange = function(){
+                if (request.readyState == XMLHttpRequest.DONE){
+                    var j = JSON.parse(request.response)
+                    if (!j["exist"]){
+                        document.getElementById("register_form_error_message").innerText = "The User does not exist"
+                    }
+                    else{
+                        document.getElementById("register_form_error_message").innerText = ""
+                    }
+                    if (j["auth"]){
+                        document.getElementById("login_btn").classList.add("btn-success")
+                        document.getElementById("login_btn").classList.remove("btn-dark")
+                    }
+                    else{
+                        document.getElementById("login_btn").classList.remove("btn-success")
+                        document.getElementById("login_btn").classList.add("btn-dark")
+                    }
+                }
+            }
+        }
+
+        function submitForm(){
+
+            var n = document.getElementById("user_name_input").value;
+            var i = document.getElementById("server_error_response");
+            if (i!=null){
+                i.remove();
+            }
+
+
+            var escape = false;
+            if (n == ""){
+                var k= document.getElementById("error_message_user_name"); 
+                escape = true;
+                if (k !=null){
+                    k.innerHTML ="Username still missing";
+                }
+                else{
+                    var e = document.createElement("p");
+                    e.classList.add("col-md-auto")
+                    e.classList.add("text-lg-center")
+                    e.classList.add("pt-1")
+                    e.id = "error_message_user_name";
+                    e.innerHTML = "Username missing";
+                    document.getElementById("login_form_container").append(e);
+                }
+            }
+            else if (document.getElementById("error_message_user_name")!=null){
+                document.getElementById("error_message_user_name").remove();
+            }
+
+            var p = document.getElementById("user_password_input").value;
+            if (p == ""){
+                escape = true;
+                var k= document.getElementById("error_message_user_password"); 
+                if (k !=null){
+                    k.innerHTML ="Password still missing";
+                }
+                else{
+                    var e = document.createElement("p");
+                    e.classList.add("col-md-auto")
+                    e.classList.add("text-lg-center")
+                    e.classList.add("pt-1")
+                    e.id = "error_message_user_password";
+                    e.innerHTML = "Password missing";
+                    document.getElementById("login_form_container").append(e);
+                }
+            }
+            else if (document.getElementById("error_message_user_password")!=null){
+                document.getElementById("error_message_user_password").remove();
+            }
+            if (p.length < 6 && !escape){
+                escape = true;
+                var k= document.getElementById("error_message_user_password");
+                if (k !=null){
+                    k.innerHTML ="Password is too weak";
+                }
+                else{
+                    var e = document.createElement("p");
+                    e.classList.add("col-md-auto")
+                    e.classList.add("text-lg-center")
+                    e.classList.add("pt-1")
+                    e.id = "error_message_user_password";
+                    e.innerHTML = "Password is too short";
+                    document.getElementById("login_form_container").append(e);
+                }
+            }
+            if (!escape){
+
+                form_url += "user_name="+n+"&user_password="+encodeRot13(p) + "&submit=" + true
+
+                var request = new XMLHttpRequest()
+                request.open("POST", form_url, true);
+                request.send();
+
+                request.onreadystatechange = () => {
+                    switch(request.readyState){
+                        case 0:{
+                            break
+                        }
+                        case 1:{
+                            break
+                        }
+                        case 2:{
+                            break
+                        }
+                        case 3:{
+                            break
+                        }
+                        case 4:{
+                            console.log(request.response)
+                            var e = JSON.parse(request.response)
+                            if (e["auth"]){
+                                window.open("/", "_self")
+                            }
+                            if (!e["exist"]){
+
+                                var l = document.createElement("p")
+                                l.id = "server_error_response"
+                                l.classList.add("col-md-auto")
+                                l.classList.add("text-lg-center")
+                                l.classList.add("pt-2")
+                                l.innerHTML = "redirecting"
+                                document.getElementById("login_form_container").append(l)
+                                setTimeout(() => {
+                                    l.innerHTML += " ."
+                                    setTimeout(() => {
+                                        l.innerHTML += " ."
+                                        setTimeout(() => {
+                                            l.innerHTML += " ."
+                                            window.open("/register", "_self")
+                                            return
+                                        }, 330)
+                                    }, 330)
+                                }, 330)
+                                return
+                            }
+                            if (!e["auth"]){
+
+                                var j = document.createElement("p")
+                                j.id = "server_error_response"
+                                j.classList.add("col-md-auto")
+                                j.classList.add("text-lg-center")
+                                j.classList.add("pt-2")
+                                j.innerHTML = "The Password does not match"
+                                document.getElementById("login_form_container").appendChild(j)
+                                return
+                            }
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</html>

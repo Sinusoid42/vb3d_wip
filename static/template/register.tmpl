@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset ="UTF-8">
+    <title> Document</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/scripts/rot13.js"></script>
+</head>
+<body>
+
+<div class="container" id ="form_container">
+    <div class="col-sm-1 pt-5">
+        <button class ="btn btn-dark" onclick="window.open('{{.server_protocol}}://{{.server_address}}:{{.server_port}}/', '_self')">Back</button>
+
+
+    </div>
+    <div class="row justify-content-md-center">
+
+        <div class="col-lg-auto pt-5">
+            <div class="row justify-content-lg-center">
+                <p>REGISTER</p>
+            </div>
+            <div class="row">
+                <form>
+                    <div class="row pt-2">
+                        <input class="col-md-auto>" type="text" id="user_name_input" onkeyup="checkUsername()" placeholder="Username">
+                    </div>
+                    <div class="row pt-2">
+                        <input class="col-md-auto>" type="email" id="user_email_input" placeholder="E-Mail">
+                    </div>
+                    <div class="row pt-2">
+                        <input class="col-md-auto>" type="password"  id="user_password_input_0" onkeyup="checkPassword_0()" placeholder="Password">
+                    </div>
+                    <div class="row pt-2">
+                        <input class="col-md-auto>" type="password" id="user_password_input_1" onkeyup="checkPassword_1()" placeholder="Password repeat">
+                    </div>
+                </form>
+            </div>
+            <div class="row justify-content-lg-center pt-3">
+                <button class="btn btn-dark"
+                        onclick="submitForm()">Register</button>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-md-auto">
+            <p id="register_form_error_message" class="pt-2">
+                -
+            </p>
+        </div>
+
+
+    </div>
+</div>
+</body>
+<script>
+    let form_url = "/register?"
+
+    let unm = document.getElementById("user_name_input")
+    let em = document.getElementById("user_email_input")
+    let pw0 = document.getElementById("user_password_input_0")
+    let pw1 = document.getElementById("user_password_input_1")
+
+
+
+    function checkUsername(){
+
+        var url = form_url + "user_name=" + document.getElementById("user_name_input").value
+
+        console.log("checking login")
+        var request = new XMLHttpRequest()
+        request.open("POST", url, true);
+        request.send();
+        request.onreadystatechange = () => {
+            if (request.readyState == XMLHttpRequest.DONE){
+                var j = JSON.parse(request.response)
+                if (j["exist"]){
+                    document.getElementById("register_form_error_message").innerText = "The User already exists"
+                }
+                else{
+                    document.getElementById("register_form_error_message").innerText = ""
+                }
+            }
+        }
+    }
+    function checkPassword_0(){
+        if (pw0.value.length < 6){
+            document.getElementById("register_form_error_message").innerText = "The Password is too short"
+            return true
+        }
+        else if (pw0.value != pw1.value){
+            document.getElementById("register_form_error_message").innerText = "The Passwords dont match"
+            return true
+        }
+        else{
+            document.getElementById("register_form_error_message").innerText = ""
+            return false
+        }
+    }
+    function checkPassword_1(){
+        if (pw1.value.length < 6){
+            document.getElementById("register_form_error_message").innerText = "The Password is too short"
+            return true
+        }
+        else if (pw0.value != pw1.value) {
+            document.getElementById("register_form_error_message").innerText = "The Passwords dont match"
+            return true
+        }
+        else{
+            document.getElementById("register_form_error_message").innerText = ""
+            return false
+        }
+    }
+
+    function sendRegistrationData(){
+        //requst successful, now send data to create new useraccount in database
+        //passwords to match and the pw can be encoded
+        var request = new XMLHttpRequest();
+        var url = "/register?user_name="+unm.value + "&user_password="+encodeRot13(pw0.value) + "&user_email_address=" + em.value + "&submit="+true;
+        request.open("POST", url, true);
+        request.send();
+        request.onreadystatechange = () => {
+            if (request.readyState == XMLHttpRequest.DONE){
+                l = document.getElementById("register_form_error_message")
+                l.innerText = "Created a new Account"
+                setTimeout(() => {
+                    l.innerHTML += " ."
+                    setTimeout(() => {
+                        l.innerHTML += " ."
+                        setTimeout(() => {
+                            l.innerHTML += " ."
+
+                            window.open("/login", "_self")
+
+                            return
+                        }, 330)
+                    }, 330)
+                }, 330)
+            }
+        }
+    }
+
+    function submitForm(){
+        var url = form_url + "user_name=" + document.getElementById("user_name_input").value;
+
+        if (checkPassword_0() || checkPassword_1()){
+            return;
+        }
+        if (unm.value.length<3){
+            document.getElementById("register_form_error_message").innerText = "The Username is too short"
+            return
+        }
+        if (!em.value.includes("@")){
+            document.getElementById("register_form_error_message").innerText = "The entered Email is probably none"
+            return
+        }
+        var request = new XMLHttpRequest();
+        request.open("POST", url, true);
+        request.send();
+        request.onreadystatechange = () => {
+            if (request.readyState == XMLHttpRequest.DONE){
+                var j = JSON.parse(request.response);
+                if (j["exist"]){
+                    unm.value = "";
+                    document.getElementById("register_form_error_message").innerText = "The User already exists";
+                    return
+                }
+                else{
+                    document.getElementById("register_form_error_message").innerText = "";
+                    sendRegistrationData();
+                }
+            }
+        }
+    }
+</script>
+</html>
