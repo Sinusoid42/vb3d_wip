@@ -1,6 +1,6 @@
 package stream
 
-import "web_projekt/v6/app/model"
+import "web_projekt/v7/app/model"
 
 func NewRoom(Host *model.User) (*model.Room, error) {
 

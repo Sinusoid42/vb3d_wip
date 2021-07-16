@@ -9,11 +9,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"web_projekt/v6/app/auth"
-	"web_projekt/v6/app/controller/stream"
-	"web_projekt/v6/app/model"
-	idutils "web_projekt/v6/app/model/utils"
 	"web_projekt/v6/app/utils"
+	"web_projekt/v7/app/auth"
+	"web_projekt/v7/app/controller/stream"
+	"web_projekt/v7/app/model"
+	idutils "web_projekt/v7/app/model/utils"
 )
 
 var templates *template.Template
@@ -176,9 +176,34 @@ func RoomsSession(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("The user is authenticated and joined the room")
 			//TODO
 
+			peerConnectionConfig := webrtc.Configuration{
+				ICEServers: []webrtc.ICEServer{
+					{
+						URLs: []string{"stun:stun.l.google.com:19302"},
+					},
+				},
+			}
+
+			webrtc.PeerConnection{}
+
+			mediaEngine := webrtc.MediaEngine{}
+			mediaEngine.RegisterCodec(webrtc.NewRTPCodecType(webrtc.PayloadType(), 90000))
+			api := webrtc.NewAPI(webrtc.WithMediaEngine(&mediaEngine))
+
+			var session Sdp
+			fmt.Println(session)
+			offer := webrtc.SessionDescription{}
+			peerConnection, _ := api.NewPeerConnection(peerConnectionConfig)
+
+			peerConnection.SetRemoteDescription(offer)
+
+			answer, _ := peerConnection.CreateAnswer(nil)
+
+			err := peerConnection.SetLocalDescription(answer)
+
 			room, _ := stream.Session.GetRoomByID(roomId)
 			room.StoreUserByID(user_id.(string))
-			
+
 			http.Handle("/rooms/"+roomId+"/"+user_id.(string)+"/stream", websocket.Handler(stream.Rooms_Stream))
 		}
 	}
@@ -269,8 +294,6 @@ func RoomsSession(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "rooms.tmpl", m)
 
 }
-
-
 
 func Rooms(w http.ResponseWriter, r *http.Request) {
 
@@ -375,9 +398,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		m["server_address"] = SERVER_ADRESS
 		m["server_port"] = SERVER_PORT
 		m["server_websocket_protocol"] = SERVER_PROTOCOL_WEBSOCKET
-		
-		
-		
+
 		templates.ExecuteTemplate(w, "login.tmpl", m)
 		return
 	}

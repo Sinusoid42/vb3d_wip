@@ -3,8 +3,8 @@ package model
 import (
 	"errors"
 	"fmt"
-	"web_projekt/v6/app/model/utils"
-	"web_projekt/v6/app/scene"
+	"web_projekt/v7/app/model/utils"
+	"web_projekt/v7/app/scene"
 )
 
 type Room struct {
