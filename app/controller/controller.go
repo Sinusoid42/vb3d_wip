@@ -9,11 +9,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"web_projekt/v6/app/auth"
-	"web_projekt/v6/app/controller/stream"
-	"web_projekt/v6/app/model"
-	idutils "web_projekt/v6/app/model/utils"
-	"web_projekt/v6/app/utils"
+	"web_projekt/v7/app/auth"
+	"web_projekt/v7/app/controller/stream"
+	"web_projekt/v7/app/model"
+	idutils "web_projekt/v7/app/model/utils"
+	"web_projekt/v7/app/utils"
 )
 
 var templates *template.Template
