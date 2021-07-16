@@ -39,6 +39,10 @@ const REGISTER_ADDRESS = "/register"
 const USER_ADDRESS = "/user"
 const LOGOUT_ADDRESS = "/logout"
 
+type Sdp struct {
+	session_description string
+}
+
 func init() {
 	fmt.Println(utils.GetLocalEnv())
 	templates = template.Must(template.ParseGlob(utils.GetLocalEnv() + "static/template/*.tmpl"))
@@ -200,6 +204,8 @@ func RoomsSession(w http.ResponseWriter, r *http.Request) {
 			answer, _ := peerConnection.CreateAnswer(nil)
 
 			err := peerConnection.SetLocalDescription(answer)
+
+			fmt.Println(err)
 
 			room, _ := stream.Session.GetRoomByID(roomId)
 			room.StoreUserByID(user_id.(string))
