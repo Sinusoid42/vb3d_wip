@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"web_projekt/v6/app/controller/stream_api"
-	"web_projekt/v6/app/model/database"
-	"web_projekt/v6/app/model/utils"
+	"web_projekt/v7/app/controller/stream_api"
+	"web_projekt/v7/app/model/database"
+	"web_projekt/v7/app/model/utils"
 )
 
 type Stream_User struct {

@@ -2,7 +2,7 @@ package stream
 
 import (
 	"errors"
-	"web_projekt/v6/app/model"
+	"web_projekt/v7/app/model"
 )
 
 var Session _session

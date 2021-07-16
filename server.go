@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"web_projekt/v6/app/controller"
-	"web_projekt/v6/app/utils"
+	"web_projekt/v7/app/controller"
+	"web_projekt/v7/app/utils"
 )
 
 func main() {

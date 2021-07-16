@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"golang.org/x/net/websocket"
 	"unsafe"
-	"web_projekt/v6/app/controller/stream_api"
-	"web_projekt/v6/app/model"
+	"web_projekt/v7/app/controller/stream_api"
+	"web_projekt/v7/app/model"
 )
 
 var stream_buffer = make([]byte, stream_api.BUFFER_SIZE)
