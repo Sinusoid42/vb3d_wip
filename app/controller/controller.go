@@ -189,10 +189,10 @@ func RoomsSession(w http.ResponseWriter, r *http.Request) {
 				},
 			}
 
-			webrtc.PeerConnection{}
+		
 
 			mediaEngine := webrtc.MediaEngine{}
-			mediaEngine.RegisterCodec(webrtc.NewRTPCodecType(webrtc.PayloadType(), 90000))
+			//mediaEngine.RegisterCodec(webrtc.NewRTPCodecType(webrtc.PayloadType(), webrtc.NewRTPCodecType("90000")))
 			api := webrtc.NewAPI(webrtc.WithMediaEngine(&mediaEngine))
 
 			var session Sdp
